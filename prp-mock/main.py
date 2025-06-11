@@ -7,12 +7,11 @@ from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-# Configuration (fill with your values)
 KEYCLOAK_SERVER_INTERNAL = "http://host.docker.internal:8080"
 KEYCLOAK_SERVER_EXTERNAL = "http://localhost:8080"
 REALM = "prp"
 CLIENT_ID = "prpId"
-CLIENT_SECRET = None  # Omit if public client
+CLIENT_SECRET = None
 REDIRECT_URI = "http://localhost:8000/callback"
 
 @app.get("/callback", response_class=HTMLResponse)
@@ -41,15 +40,13 @@ async def callback(request: Request):
         resp = await client.post(token_url, data=data)
         token_data = resp.json()
 
-    # Optional: get the Keycloak public key and verify signature
-    decoded = jwt.decode(token_data["access_token"], options={"verify_signature": False})
-    pretty_token = json.dumps(decoded, indent=4)
+    decoded_token = jwt.decode(token_data["access_token"], options={"verify_signature": False})
+    pretty_token = json.dumps(decoded_token, indent=4)
+
     return f"""
     <h1>Token Response</h1>
     <pre>{pretty_token}</pre>
     """
-
-
 
 @app.get("/", response_class=HTMLResponse)
 def home():
